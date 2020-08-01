@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-// InsertionSort 插入排序算法
-func TestInsertionSort(t *testing.T) {
+// MergeSort 插入排序算法
+func TestMergeSort(t *testing.T) {
 	var sortList = []int{111, 11, 2, 555, 555, 555, 1, 2313, 44, 5435, 436, 54, 6, 32}
 
-	out := InsertionSort(sortList)
+	out := MergeSort(sortList)
 	fmt.Printf("sortedList := %v", out)
 	sortListLen := len(sortList)
 	outLen := len(out)

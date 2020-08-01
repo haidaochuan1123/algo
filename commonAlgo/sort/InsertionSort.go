@@ -2,8 +2,8 @@ package sort
 
 import "fmt"
 
-// InsertionAlgo 插入排序算法
-func InsertionAlgo(sortList []int) []int {
+// InsertionSort 插入排序算法
+func InsertionSort(sortList []int) []int {
 
 	for i := range sortList {
 		if i < 1 {
