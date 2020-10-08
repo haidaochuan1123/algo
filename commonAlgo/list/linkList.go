@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sync"
 )
 
 // Node 链表结构体
@@ -15,7 +16,8 @@ type Node struct {
 // LinkedList 链表
 type LinkedList struct {
 	header *Node
-	len    int
+	size   int
+	lock   sync.RWMutex
 }
 
 // NewNode 返回链表结构体
@@ -35,22 +37,30 @@ func NewNodeWithNext(value interface{}, next *Node) *Node {
 
 // IsEmpty 判断单链表是否为空
 func (l *LinkedList) IsEmpty() bool {
+	l.lock.RLock()
+	defer l.lock.RUnlock()
 	return l.header == nil
 }
 
 // Len 返回单链表长度
 func (l *LinkedList) Len() int {
-	return l.len
+	l.lock.RLock()
+	defer l.lock.RUnlock()
+	return l.size
 }
 
 // 添加元素修改单链表长度
 func (l *LinkedList) sizeInc() {
-	l.len++
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	l.size++
 }
 
 // 删除元素修改单链表长度
 func (l *LinkedList) sizeDec() {
-	l.len--
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	l.size--
 }
 
 // AddValue 向链表添加元素
@@ -71,6 +81,9 @@ func (l *LinkedList) sizeDec() {
 
 // Append 向链表最后添加元素
 func (l *LinkedList) Append(node *Node) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
 	current := l.header
 
 	if current == nil {
@@ -93,6 +106,8 @@ func (l *LinkedList) Append(node *Node) {
 
 // Prepend 向链表头添加元素
 func (l *LinkedList) Prepend(node *Node) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	current := l.header
 	node.Next = current
 	l.header = node
@@ -124,6 +139,8 @@ func (l *LinkedList) Find(value interface{}) bool {
 
 // RemoveNode 删除单链表节点
 func (l *LinkedList) RemoveNode(value interface{}) error {
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	if l.IsEmpty() {
 		return errors.New("This is an empty list")
 	}
@@ -180,7 +197,7 @@ func (l LinkedList) PrintList() {
 	}
 
 	fmt.Printf("Node %d, values: %v \n", i, current.Value)
-	fmt.Printf("-------LinkList Len : %d------- \n", l.len)
+	fmt.Printf("-------LinkList Len : %d------- \n", l.size)
 }
 
 // UnmarshalListBySlice  根据数组反序列化链表

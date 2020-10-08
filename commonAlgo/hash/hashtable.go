@@ -20,7 +20,7 @@ type ValueHashTable struct {
 func hash(k key) int {
 	key := fmt.Sprintf("%s", k)
 	hash := 0
-	for i := 0; i <= len(key); i++ {
+	for i := 0; i < len(key); i++ {
 		hash = 31*hash + int(key[i])
 	}
 	return hash
