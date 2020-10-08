@@ -26,19 +26,19 @@ func hash(k key) int {
 	return hash
 }
 
-// hash表新增元素
+// Put hash表新增元素
 func (ht *ValueHashTable) Put(k key, v value) {
 	ht.lock.Lock()
 	defer ht.lock.Unlock()
 
 	h := hash(k)
-	if ht.items != nil {
+	if ht.items == nil {
 		ht.items = make(map[int]value)
 	}
 	ht.items[h] = v
 }
 
-// hash表删除元素
+// Remove hash表删除元素
 func (ht *ValueHashTable) Remove(k key) {
 	ht.lock.Lock()
 	defer ht.lock.Unlock()
@@ -47,7 +47,7 @@ func (ht *ValueHashTable) Remove(k key) {
 	delete(ht.items, h)
 }
 
-// hash表获取元素
+// Get hash表获取元素
 func (ht *ValueHashTable) Get(k key) value {
 	ht.lock.RLock()
 	defer ht.lock.RUnlock()
@@ -56,7 +56,7 @@ func (ht *ValueHashTable) Get(k key) value {
 	return ht.items[h]
 }
 
-// hash表大小
+// Size hash表大小
 func (ht *ValueHashTable) Size() int {
 	ht.lock.RLock()
 	defer ht.lock.RUnlock()

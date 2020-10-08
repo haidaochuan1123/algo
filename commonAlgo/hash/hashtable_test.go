@@ -26,11 +26,15 @@ func TestHashTable(t *testing.T) {
 
 	ht.Remove("key2")
 
-	if "valsue3" != ht.Get("key3") {
+	if "value4" != ht.Get("key3") {
 		t.Errorf("hash表元素获取出错,获取到 %s", ht.Get("key3"))
 	}
 
-	for i := 0; i < ht.Size(); i++ {
-		fmt.Printf("数组[%d]: key=%d: value=%s \n", i, hash(i), ht.items[hash(i)])
+	for i := 1; i <= ht.Size(); i++ {
+		fmt.Printf("初始值[key=%d]: hash值=%d: value=%s \n",
+			i,
+			hash(fmt.Sprintf("key%d", i)),
+			ht.items[hash(fmt.Sprintf("key%d", i))],
+		)
 	}
 }
