@@ -1,15 +1,19 @@
 package list
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"sync"
+
+	"github.com/cheekybits/genny/generic"
 )
+
+// Item 通用类型数据
+type Item generic.Type
 
 // Node 链表结构体
 type Node struct {
-	Value interface{}
+	Value Item
 	Next  *Node
 }
 
@@ -20,15 +24,15 @@ type LinkedList struct {
 	lock   sync.RWMutex
 }
 
-// NewNode 返回链表结构体
-func NewNode(value interface{}) *Node {
+// NewLinkedNode 返回链表结构体
+func NewLinkedNode(value Item) *Node {
 	return &Node{
 		Value: value,
 	}
 }
 
-// NewNodeWithNext 返回链表结构体
-func NewNodeWithNext(value interface{}, next *Node) *Node {
+// NewLinkedNodeWithNext 返回链表结构体
+func NewLinkedNodeWithNext(value Item, next *Node) *Node {
 	return &Node{
 		Value: value,
 		Next:  next,
@@ -37,166 +41,153 @@ func NewNodeWithNext(value interface{}, next *Node) *Node {
 
 // IsEmpty 判断单链表是否为空
 func (l *LinkedList) IsEmpty() bool {
-	l.lock.RLock()
-	defer l.lock.RUnlock()
 	return l.header == nil
 }
 
 // Len 返回单链表长度
 func (l *LinkedList) Len() int {
-	l.lock.RLock()
-	defer l.lock.RUnlock()
 	return l.size
 }
 
-// 添加元素修改单链表长度
-func (l *LinkedList) sizeInc() {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-	l.size++
-}
-
-// 删除元素修改单链表长度
-func (l *LinkedList) sizeDec() {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-	l.size--
-}
-
-// AddValue 向链表添加元素
-// func (l *LinkedList) AddValue(value interface{}) {
-// 	if l.header == nil {
-// 		node := Node{value: value}
-// 		l.header = &node
-// 		return
-// 	}
-
-// 	item := l.header
-// 	for ; item.next != nil; item = item.next {
-// 		if item.value == value {
-
-// 		}
-// 	}
-// }
-
 // Append 向链表最后添加元素
-func (l *LinkedList) Append(node *Node) {
+func (l *LinkedList) Append(value Item) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
+	newNode := NewLinkedNode(value)
 
-	current := l.header
+	curNode := l.header
 
-	if current == nil {
-		l.header = node
-		l.sizeInc()
+	// 空链表
+	if curNode == nil {
+		l.header = newNode
+		l.size++
 		return
 	}
 
 	for {
-		if current.Next == nil {
+		if curNode.Next == nil {
 			break
 		}
 
-		current = current.Next
+		curNode = curNode.Next
 	}
 
-	current.Next = node
-	l.sizeInc()
+	curNode.Next = newNode
+	l.size++
+
 }
 
-// Prepend 向链表头添加元素
-func (l *LinkedList) Prepend(node *Node) {
+// Insert 向链表指定位置添加元素
+func (l *LinkedList) Insert(value Item, index int) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	current := l.header
-	node.Next = current
-	l.header = node
-	l.sizeInc()
+	if index < 0 || index > l.Len() {
+		return fmt.Errorf("Index %d out of bonuds", index)
+	}
+
+	newNode := NewLinkedNode(value)
+
+	// 向链表头插入元素
+	if index == 0 {
+		newNode.Next = l.header
+		l.header = newNode
+		l.size++
+		return nil
+	}
+
+	// 找到需要插入的位置的前一个元素
+	preNode := l.header
+	preIndex := 0
+	for preIndex < index-2 {
+		preIndex++
+		preNode = preNode.Next
+	}
+
+	// 在查找的位置执行插入
+	newNode.Next = preNode.Next
+	preNode.Next = newNode
+	l.size++
+	return nil
 }
 
-// Find 从链表中查找指定的元素
-func (l *LinkedList) Find(value interface{}) bool {
-	if l.IsEmpty() {
-		fmt.Println("This is an empty list")
-		return false
-	}
+// Find 从链表中查找指定的元素的位置
+func (l *LinkedList) Find(value Item) (int, bool) {
+	// l.lock.RLock()
+	// defer l.lock.RUnlock()
 
-	current := l.header
-	for current.Next != nil {
-		if current.Value == value {
-			return true
+	curNode := l.header
+	locIndex := 0
+	for {
+		if curNode.Value == value {
+			return locIndex, true
+		}
+		if curNode.Next == nil {
+			return -1, false
 		}
 
-		current = current.Next
+		curNode = curNode.Next
+		locIndex++
 	}
-
-	if current.Value == value {
-		return true
-	}
-
-	return false
 }
 
 // RemoveNode 删除单链表节点
-func (l *LinkedList) RemoveNode(value interface{}) error {
+func (l *LinkedList) RemoveNode(value Item) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	if l.IsEmpty() {
-		return errors.New("This is an empty list")
+	curNode := l.header
+	if curNode == nil {
+		return fmt.Errorf("empty list")
+	} else if curNode.Value == value {
+		l.header = l.header.Next
+		l.size--
 	}
-
-	current := l.header
-
-	if current.Value == value {
-		l.header = current.Next
-		l.sizeDec()
-		return nil
-	}
-
-	for current.Next != nil {
-		if current.Next.Value == value {
-			current.Next = current.Next.Next
-			l.sizeDec()
+	for {
+		if curNode.Next.Value == value {
+			curNode.Next = curNode.Next.Next
+			l.size--
 			return nil
 		}
-
-		current = current.Next
-
+		curNode = curNode.Next
 	}
 
-	if current.Value == value {
-		current = nil
-		l.sizeDec()
-		return nil
-	}
-
-	return errors.New("not found value")
+	// return fmt.Errorf("not found value")
 }
 
 // Traverse 单链表反转
-func Traverse(l *LinkedList) {
+func (l *LinkedList) Traverse() *LinkedList {
+	traversedList := &LinkedList{}
+	curNode := l.header
+	for {
+		if curNode == nil {
+			break
+		}
+		traversedList.Insert(curNode.Value, 0)
+		curNode = curNode.Next
+	}
+	return traversedList
 }
 
-// PrintList 打印出当前单链表
-func (l LinkedList) PrintList() {
+// String 打印出当前单链表
+func (l *LinkedList) String() {
 	if l.IsEmpty() {
-		fmt.Println("This is an empty list")
+		fmt.Printf("This is an empty list %d\n", l.Len())
 		return
 	}
 
-	current := l.header
+	curNode := l.header
 	fmt.Println("-------LinkList Element-------")
 
-	i := 1
-	for ; ; i++ {
-		if current.Next == nil {
+	index := 0
+	for {
+		fmt.Printf("Node %d, values: %v \n", index, curNode.Value)
+		index++
+		curNode = curNode.Next
+		if curNode == nil {
 			break
 		}
-		fmt.Printf("Node %d, values: %v \n", i, current.Value)
-		current = current.Next
+
 	}
 
-	fmt.Printf("Node %d, values: %v \n", i, current.Value)
 	fmt.Printf("-------LinkList Len : %d------- \n", l.size)
 }
 
@@ -204,7 +195,7 @@ func (l LinkedList) PrintList() {
 func UnmarshalListBySlice(nums []interface{}) *LinkedList {
 	linkedList := &LinkedList{}
 	for _, v := range nums {
-		linkedList.Append(NewNode(v))
+		linkedList.Append(v)
 	}
 
 	return linkedList
@@ -215,7 +206,7 @@ func UnmarshalListByRand(maxNum, len int) *LinkedList {
 	linkedList := &LinkedList{}
 	for i := 0; i < len; i++ {
 		value := rand.Intn(maxNum)
-		linkedList.Append(NewNode(value))
+		linkedList.Append(value)
 	}
 
 	return linkedList
