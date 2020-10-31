@@ -1,7 +1,5 @@
 package sort
 
-import "fmt"
-
 // BubbleSort 冒泡排序算法
 func BubbleSort(sortList []int) []int {
 	for i := range sortList {
@@ -12,7 +10,7 @@ func BubbleSort(sortList []int) []int {
 				sortList[j], sortList[j+1] = sortList[j+1], sortList[j]
 			}
 		}
-		fmt.Printf("第%d次排序结果为:%v \n", i, sortList)
+		// fmt.Printf("第%d次排序结果为:%v \n", i, sortList)
 	}
 	return sortList
 }

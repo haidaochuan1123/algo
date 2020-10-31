@@ -1,7 +1,5 @@
 package sort
 
-import "fmt"
-
 // InsertionSort 插入排序算法
 func InsertionSort(sortList []int) []int {
 
@@ -22,7 +20,7 @@ func InsertionSort(sortList []int) []int {
 			}
 		}
 
-		fmt.Printf("第%d次排序结果为:%v \n", i, sortList)
+		// fmt.Printf("第%d次排序结果为:%v \n", i, sortList)
 	}
 
 	return sortList

@@ -1,7 +1,5 @@
 package sort
 
-import "fmt"
-
 // MergeSort 归并排序算法
 func MergeSort(sortList []int) []int {
 	lenSortList := len(sortList)
@@ -15,7 +13,7 @@ func MergeSort(sortList []int) []int {
 	leftList := MergeSort(sortList[:middle])
 	rightList := MergeSort(sortList[middle:])
 	sortList = merge(leftList, rightList)
-	fmt.Printf("排序结果为:%v \n", sortList)
+	// fmt.Printf("排序结果为:%v \n", sortList)
 	return sortList
 }
 
