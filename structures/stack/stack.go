@@ -2,11 +2,9 @@ package stack
 
 import (
 	"sync"
-
-	"github.com/cheekybits/genny/generic"
 )
 
-type Item generic.Type
+type Item interface{}
 
 type ItemStack struct {
 	items []Item

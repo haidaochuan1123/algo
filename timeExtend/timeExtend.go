@@ -1,4 +1,4 @@
-package commutil
+package timeExtend
 
 import "time"
 
